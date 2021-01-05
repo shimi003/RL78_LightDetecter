@@ -14,17 +14,16 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2011, 2019 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2011, 2018 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_main.c
-* Version      : CodeGenerator for RL78/G13 V2.05.04.02 [20 Nov 2019]
+* Version      : CodeGenerator for RL78/G13 V2.05.03.01 [12 Nov 2018]
 * Device(s)    : R5F1006A
 * Tool-Chain   : CCRL
 * Description  : This file implements main function.
-* Creation Date: 2021/01/01
-* Autor        : shimijimi factory.
+* Creation Date: 2021/01/06
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
@@ -49,6 +48,41 @@ Pragma directive
 Global variables and functions
 ***********************************************************************************************************************/
 /* Start user code for global. Do not edit comment generated here */
+#define DO_PWR_ON	P0_bit.no0
+#define DO_BZ_LED	P0_bit.no1
+#define DO_BZ		P1_bit.no1
+
+#define DI_TACTSW	P13_bit.no7
+
+// 
+#define THRESHOLD 50
+
+#define LED_ON	0
+#define LED_OFF	1
+
+#define BZ_ON	1
+#define BZ_OFF	0
+
+// return 1 if di change state
+unsigned char checkdi(void){
+	static unsigned char beforestate = 0;
+	static unsigned char count = 0;
+	if(DI_TACTSW != beforestate){
+		if(count >= 100){
+			count = 0;
+			beforestate = DI_TACTSW;
+			return 1;
+		}
+		else{
+			count++;
+			return 0;
+		}
+	}
+	else{
+		count = 0;
+	}
+}
+
 void main_loop(void);
 
 unsigned char  g_uc_Status;
@@ -61,19 +95,6 @@ typedef enum{
 	ST_JUDGE,
 	ST_OUT,
 };
-
-#define DO_PWR_ON	P0_bit.no0
-#define DO_BZ_LED	P0_bit.no1
-#define DO_BZ		P1_bit.no1
-
-// 
-#define THRESHOLD 50
-
-#define LED_ON	0
-#define LED_OFF	1
-
-#define BZ_ON	1
-#define BZ_OFF	0
 
 /* End user code. Do not edit comment generated here */
 void R_MAIN_UserInit(void);
@@ -113,7 +134,19 @@ void R_MAIN_UserInit(void)
 
 /* Start user code for adding. Do not edit comment generated here */
 void main_loop(void){
-	
+
+	static di = 0;
+
+	// di check and switch bz-on/off
+	if(checkdi()){
+		di = DI_TACTSW;
+		if(di == 1){
+			// __TODO__
+				// switch buzzer-on/off
+				// switch led 3 on/off
+		}
+	}
+
 	switch(g_uc_Status){
 		
 		// first
@@ -135,11 +168,11 @@ void main_loop(void){
 		case ST_JUDGE:
 			 R_ADC_Get_Result((uint16_t *const)&g_uh_CurrentLxAdcValue);
 
-			// 組み込めたらいいが過去値に初期値代入
+			// 初回 過去値に初期値代入
 			if(g_uh_ResentLxAdcValue == 0)
 				g_uh_ResentLxAdcValue = g_uh_CurrentLxAdcValue;
 
-			// 明るくなった
+			// 明るくなったら
 			if(g_uh_CurrentLxAdcValue < (g_uh_ResentLxAdcValue - THRESHOLD)){
 				// ブザー停止
 				DO_BZ_LED = LED_OFF;

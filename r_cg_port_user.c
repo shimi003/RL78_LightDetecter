@@ -14,16 +14,16 @@
 * following link:
 * http://www.renesas.com/disclaimer
 *
-* Copyright (C) 2011, 2019 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2011, 2018 Renesas Electronics Corporation. All rights reserved.
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
 * File Name    : r_cg_port_user.c
-* Version      : CodeGenerator for RL78/G13 V2.05.04.02 [20 Nov 2019]
+* Version      : CodeGenerator for RL78/G13 V2.05.03.01 [12 Nov 2018]
 * Device(s)    : R5F1006A
 * Tool-Chain   : CCRL
 * Description  : This file implements device driver for PORT module.
-* Creation Date: 2021/01/01
+* Creation Date: 2021/01/06
 ***********************************************************************************************************************/
 
 /***********************************************************************************************************************
